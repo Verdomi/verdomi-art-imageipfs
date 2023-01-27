@@ -23,43 +23,57 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     mapping(address => uint256) internal amountMinted;
     mapping(uint256 => string) internal idToIpfs;
+    mapping(uint256 => string) internal idToColor;
 
-    function mint(bytes32[] memory proof, string memory imageIpfs, uint256 tokenId) external {
-        // Make sure the tokenID + imageIpfs are valid
-        verify(proof, imageIpfs, tokenId);
+    function mint(
+        bytes32[] memory proof,
+        string memory imageIpfs,
+        uint256 tokenId,
+        string memory color
+    ) external {
+        // Make sure the tokenID + imageIpfs + color are valid
+        verify(proof, imageIpfs, tokenId, color);
         // Make sure the minter has not minted 10 tokens already
-        require(amountMinted[msg.sender] < 10);
+        require(amountMinted[msg.sender] < 10, "User has already minted the maximum amount");
         // Make sure the minter is not a contract
-        require(msg.sender == tx.origin);
+        require(msg.sender == tx.origin, "No contracts allowed");
 
         // Increase amount minted by sender
         amountMinted[msg.sender] += 1;
         // Update the IPFS string for the minted tokenId
         idToIpfs[tokenId] = imageIpfs;
+        // Update the Color string for the minted tokenId
+        idToColor[tokenId] = color;
         // Mint the token
         _mint(msg.sender, tokenId);
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
-        string[4] memory parts;
+        string[6] memory parts;
         parts[
             0
-        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: black; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="#ffffff" /><text x="10" y="175" class="base">';
+        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: black; font-family: serif; font-size: 12px; }</style><rect width="100%" height="100%" fill="#';
 
-        parts[1] = "ipfs://";
+        parts[1] = idToColor[tokenId];
 
-        parts[2] = idToIpfs[tokenId];
+        parts[2] = '" /><text x="3" y="175" class="base">';
 
-        parts[3] = "</text></svg>";
+        parts[3] = "ipfs://";
 
-        string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
+        parts[4] = idToIpfs[tokenId];
+
+        parts[5] = "</text></svg>";
+
+        string memory output = string(
+            abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5])
+        );
 
         string memory json = Base64.encode(
             bytes(
                 string(
                     abi.encodePacked(
-                        '{"name": "Off-Chain Apes #',
+                        '{"name": "Off-Chain Ape #',
                         tokenId.toString(),
                         '", "description": "This NFT is part of a collection of 10,000 created by Verdomi. The collection serves as an artistic expression on the lack of on-chain storage for most NFT artwork. The inspiration for the project came from a tweet by dankmfer.eth. There is a 10% royalty on the collection, with half going to Verdomi and the other half going to dankmfer.", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),

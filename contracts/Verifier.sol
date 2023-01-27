@@ -16,9 +16,14 @@ contract Verifier is Ownable {
         root = _root;
     }
 
-    function verify(bytes32[] memory proof, string memory imageIpfs, uint256 tokenId) public view {
+    function verify(
+        bytes32[] memory proof,
+        string memory imageIpfs,
+        uint256 tokenId,
+        string memory color
+    ) public view {
         // (2)
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(imageIpfs, tokenId))));
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(imageIpfs, tokenId, color))));
         // (3)
         require(MerkleProof.verify(proof, root, leaf), "Invalid proof");
         // (4)
