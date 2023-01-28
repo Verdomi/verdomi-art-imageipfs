@@ -57,17 +57,11 @@ const { get } = require("http")
                   assert.equal(name, "Off-Chain Apes")
                   assert.equal(symbol, "OFFCA")
               })
-              it("Initializes the royalty addresses correctly.", async () => {
-                  const verdomi = await offchain.getVerdomiAddress()
-                  const dankmfer = await offchain.getDankmferAddress()
-                  assert.equal(verdomi, "0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7")
-                  assert.equal(dankmfer, "0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5")
-              })
               it("Initializes the royalty information correctly.", async () => {
                   const royaltyInfo = await offchain.royaltyInfo(0, ethers.utils.parseEther("1"))
                   const receiver = royaltyInfo[0]
                   const amount = royaltyInfo[1].toString()
-                  assert.equal(receiver, offchain.address)
+                  assert.equal(receiver, deployer.address)
                   assert.equal(amount, ethers.utils.parseEther("0.1"))
               })
               it("Sets root correctly.", async () => {
@@ -165,86 +159,6 @@ const { get } = require("http")
 
                   await expect(offchain.mint(proof, imageIpfs, tokenId, color)).to.be.revertedWith(
                       "Mint is not open"
-                  )
-              })
-          })
-
-          describe("receive", () => {
-              it("Sends about half of the money to Verdomi and half to Dankmfer", async () => {
-                  const ethAmount = "0.17629055"
-
-                  const verdomiBalanceBefore = await ethers.provider.getBalance(
-                      "0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7"
-                  )
-                  const dankmferBalanceBefore = await ethers.provider.getBalance(
-                      "0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5"
-                  )
-                  await deployer.sendTransaction({
-                      to: offchain.address,
-                      value: ethers.utils.parseEther(ethAmount),
-                  })
-                  const verdomiBalanceAfter = await ethers.provider.getBalance(
-                      "0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7"
-                  )
-                  const dankmferBalanceAfter = await ethers.provider.getBalance(
-                      "0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5"
-                  )
-
-                  assert.equal(
-                      verdomiBalanceAfter.toString(),
-                      verdomiBalanceBefore.add(
-                          ethers.utils.parseEther((ethAmount / 2).toString()).toString()
-                      )
-                  )
-                  assert.equal(
-                      dankmferBalanceAfter.toString(),
-                      dankmferBalanceBefore.add(
-                          ethers.utils.parseEther((ethAmount / 2).toString()).toString()
-                      )
-                  )
-              })
-          })
-
-          describe("withdrawERC20", () => {
-              it("Sends about half of the token to Verdomi and half to Dankmfer", async () => {
-                  const tokenAmount = "0.982150671541"
-
-                  const verdomiBalanceBefore = await erc20.balanceOf(
-                      "0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7"
-                  )
-                  const dankmferBalanceBefore = await erc20.balanceOf(
-                      "0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5"
-                  )
-
-                  await erc20.transfer(offchain.address, ethers.utils.parseEther(tokenAmount))
-
-                  await offchain.withdrawERC20(erc20.address)
-
-                  const verdomiBalanceAfter = await erc20.balanceOf(
-                      "0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7"
-                  )
-                  const dankmferBalanceAfter = await erc20.balanceOf(
-                      "0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5"
-                  )
-
-                  assert.equal(
-                      verdomiBalanceAfter.toString(),
-                      verdomiBalanceBefore.add(
-                          ethers.utils.parseEther((tokenAmount / 2).toString()).toString()
-                      )
-                  )
-                  assert.equal(
-                      dankmferBalanceAfter.toString(),
-                      dankmferBalanceBefore.add(
-                          ethers.utils.parseEther((tokenAmount / 2).toString()).toString()
-                      )
-                  )
-              })
-              it("Reverts if sender is not Verdomi or Dankmfer or Owner", async () => {
-                  await erc20.transfer(offchain.address, ethers.utils.parseEther("1"))
-                  const playerOff = offchain.connect(player)
-                  await expect(playerOff.withdrawERC20(erc20.address)).to.be.revertedWith(
-                      "Must be Verdomi, Dankmfer or Owner"
                   )
               })
           })

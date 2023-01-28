@@ -13,12 +13,10 @@ error OffChainApes__TransferFailed();
 contract OffChainApes is ERC721, ERC2981, Verifier {
     using Strings for uint256;
 
-    address internal constant VERDOMI_ADDRESS = 0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7;
-    address internal constant DANKMFER_ADDRESS = 0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5;
     uint256 internal constant MAX_SUPPLY = 10000;
 
     constructor(bytes32 _root) ERC721("Off-Chain Apes", "OFFCA") Verifier(_root) {
-        _setDefaultRoyalty(address(this), 1000);
+        _setDefaultRoyalty(msg.sender, 1000);
     }
 
     mapping(address => uint256) internal amountMinted;
@@ -83,7 +81,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
                     abi.encodePacked(
                         '{"name": "Off-Chain Ape #',
                         tokenId.toString(),
-                        '", "description": "This NFT is part of a collection of 10,000 created by Verdomi. The collection serves as an artistic expression on the lack of on-chain storage for most NFT artwork. The inspiration for the project came from a tweet by dankmfer.eth. There is a 10% royalty on the collection, with half going to Verdomi and the other half going to dankmfer.", "image": "data:image/svg+xml;base64,',
+                        '", "description": "This NFT is part of a collection of 10,000 created by Verdomi. The collection serves as an artistic expression on the lack of on-chain storage for most NFT artwork. There is a 10% royalty on the collection.", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),
                         '"}'
                     )
@@ -128,37 +126,8 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         return super.supportsInterface(interfaceId);
     }
 
-    function withdrawERC20(address tokenAddress) external {
-        require(
-            msg.sender == VERDOMI_ADDRESS ||
-                msg.sender == DANKMFER_ADDRESS ||
-                msg.sender == owner(),
-            "Must be Verdomi, Dankmfer or Owner"
-        );
-        IERC20 token = IERC20(tokenAddress);
-
-        uint256 amount = token.balanceOf(address(this)) / 2;
-
-        token.transfer(VERDOMI_ADDRESS, amount);
-        token.transfer(DANKMFER_ADDRESS, amount);
-    }
-
     function toggleMint() external onlyOwner {
         isMintOpen = !isMintOpen;
-    }
-
-    receive() external payable {
-        uint256 amount = address(this).balance / 2;
-
-        (bool success1, ) = payable(VERDOMI_ADDRESS).call{value: amount}("");
-        if (!success1) {
-            revert OffChainApes__TransferFailed();
-        }
-
-        (bool success2, ) = payable(DANKMFER_ADDRESS).call{value: amount}("");
-        if (!success2) {
-            revert OffChainApes__TransferFailed();
-        }
     }
 
     function totalSupply() external view returns (uint256) {
@@ -179,14 +148,6 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     function getAmountMinted(address wallet) external view returns (uint256) {
         return amountMinted[wallet];
-    }
-
-    function getVerdomiAddress() external pure returns (address) {
-        return VERDOMI_ADDRESS;
-    }
-
-    function getDankmferAddress() external pure returns (address) {
-        return DANKMFER_ADDRESS;
     }
 
     function maxSupply() external pure returns (uint256) {
