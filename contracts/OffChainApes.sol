@@ -31,7 +31,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         uint256 tokenId,
         string memory color
     ) external {
-        // Make sure the tokenID + imageIpfs + color are valid
+        // Make sure the tokenId + imageIpfs + color are valid
         verify(proof, imageIpfs, tokenId, color);
         // Make sure the minter has not minted 10 tokens already
         require(amountMinted[msg.sender] < 10, "User has already minted the maximum amount");
@@ -141,5 +141,29 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         if (!success2) {
             revert OffChainApes__TransferFailed();
         }
+    }
+
+    function isMinted(uint256 tokenId) external view returns (bool) {
+        return _exists(tokenId);
+    }
+
+    function getImageIpfs(uint256 tokenId) external view returns (string memory) {
+        return idToIpfs[tokenId];
+    }
+
+    function getBackgroundColor(uint256 tokenId) external view returns (string memory) {
+        return idToColor[tokenId];
+    }
+
+    function getAmountMinted(address wallet) external view returns (uint256) {
+        return amountMinted[wallet];
+    }
+
+    function getVerdomiAddress() external pure returns (address) {
+        return VERDOMI_ADDRESS;
+    }
+
+    function getDankmferAddress() external pure returns (address) {
+        return DANKMFER_ADDRESS;
     }
 }

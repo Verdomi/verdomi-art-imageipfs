@@ -6,7 +6,7 @@ const tree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("MerkleTree/tree
 
 // (2)
 for (const [i, v] of tree.entries()) {
-    if (v[0] === "QmRRPWG96cmgTn2qSzjwr2qvfNEuhunv6FNeMFGa9bx6mQ") {
+    if (v[1] === "5") {
         // (3)
         const proof = tree.getProof(i)
         console.log("Value:", v)

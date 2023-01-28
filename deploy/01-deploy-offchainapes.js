@@ -6,7 +6,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     log("------------------------")
-    const args = ["0x55162907986ae1a49e43b5d7503125116faa61f9e65a7a91880ca47bde3b9368"]
+    const args = ["0x6e60e93f2ef8bae20b4b5be50ed41a188d7e356e887e9035ebcfcd371a61068f"]
     const generals = await deploy("OffChainApes", {
         from: deployer,
         args: args,
