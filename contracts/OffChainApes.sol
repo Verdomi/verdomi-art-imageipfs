@@ -15,6 +15,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     address internal constant VERDOMI_ADDRESS = 0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7;
     address internal constant DANKMFER_ADDRESS = 0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5;
+    uint256 internal constant MAX_SUPPLY = 10000;
 
     constructor(bytes32 _root) ERC721("Off-Chain Apes", "OFFCA") Verifier(_root) {
         _setDefaultRoyalty(address(this), 1000);
@@ -24,7 +25,8 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
     mapping(uint256 => string) internal idToIpfs;
     mapping(uint256 => string) internal idToColor;
 
-    bool internal isMintOpen;
+    bool internal isMintOpen = false;
+    uint256 internal currentSupply = 0;
 
     function mint(
         bytes32[] memory proof,
@@ -32,6 +34,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         uint256 tokenId,
         string memory color
     ) external {
+        require(currentSupply < MAX_SUPPLY, "All tokens have been minted");
         // Make sure mint is open
         require(isMintOpen, "Mint is not open");
         // Make sure the tokenId + imageIpfs + color are valid
@@ -47,6 +50,8 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         idToIpfs[tokenId] = imageIpfs;
         // Update the Color string for the minted tokenId
         idToColor[tokenId] = color;
+        // Update current supply
+        currentSupply++;
         // Mint the token
         _mint(msg.sender, tokenId);
     }
@@ -156,6 +161,10 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         }
     }
 
+    function totalSupply() external view returns (uint256) {
+        return currentSupply;
+    }
+
     function isMinted(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
@@ -178,5 +187,9 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     function getDankmferAddress() external pure returns (address) {
         return DANKMFER_ADDRESS;
+    }
+
+    function maxSupply() external pure returns (uint256) {
+        return MAX_SUPPLY;
     }
 }
