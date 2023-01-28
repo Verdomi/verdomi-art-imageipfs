@@ -201,6 +201,23 @@ const { get } = require("http")
                   await expect(playerOff.toggleMint).to.be.reverted
               })
           })
+
+          describe("findUnminted", () => {
+              it("Works correctly", async () => {
+                  const one = await offchain.findUnminted()
+
+                  const imageIpfs = mintData[0][0]
+                  const tokenId = mintData[0][1]
+                  const color = mintData[0][2]
+                  const proof = mintData[0][3]
+                  await offchain.mint(proof, imageIpfs, tokenId, color)
+
+                  const two = await offchain.findUnminted()
+
+                  assert.equal(one.toString(), "0")
+                  assert.equal(two.toString(), "1")
+              })
+          })
       })
 
 /*

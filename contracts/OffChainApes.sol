@@ -134,7 +134,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         return currentSupply;
     }
 
-    function isMinted(uint256 tokenId) external view returns (bool) {
+    function isMinted(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
     }
 
@@ -152,5 +152,14 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     function maxSupply() external pure returns (uint256) {
         return MAX_SUPPLY;
+    }
+
+    function findUnminted() external view returns (uint256) {
+        for (uint256 i = 0; i < MAX_SUPPLY; i++) {
+            if (!isMinted(i)) {
+                return i;
+            }
+        }
+        return 0;
     }
 }
