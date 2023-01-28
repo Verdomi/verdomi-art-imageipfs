@@ -12,10 +12,6 @@ contract Verifier is Ownable {
         root = _root;
     }
 
-    function setRoot(bytes32 _root) external onlyOwner {
-        root = _root;
-    }
-
     function verify(
         bytes32[] memory proof,
         string memory imageIpfs,
@@ -28,5 +24,13 @@ contract Verifier is Ownable {
         require(MerkleProof.verify(proof, root, leaf), "Invalid proof");
         // (4)
         // ...
+    }
+
+    function setRoot(bytes32 _root) external onlyOwner {
+        root = _root;
+    }
+
+    function getRoot() external view returns (bytes32) {
+        return root;
     }
 }

@@ -17,7 +17,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
     address internal constant VERDOMI_ADDRESS = 0x62278f1af3b3d2FF91967F1d65E8E2d804dC23d7;
     address internal constant DANKMFER_ADDRESS = 0x1b89Cd273791CB463f75C4973f60d5D68e75f0c5;
 
-    constructor(bytes32 _root) ERC721("Off-Chain Apes", "OCA") Verifier(_root) {
+    constructor(bytes32 _root) ERC721("Off-Chain Apes", "OFFCA") Verifier(_root) {
         _setDefaultRoyalty(address(this), 1000);
     }
 
@@ -25,12 +25,16 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
     mapping(uint256 => string) internal idToIpfs;
     mapping(uint256 => string) internal idToColor;
 
+    bool internal isMintOpen;
+
     function mint(
         bytes32[] memory proof,
         string memory imageIpfs,
         uint256 tokenId,
         string memory color
     ) external {
+        // Make sure mint is open
+        require(isMintOpen, "Mint is not open.");
         // Make sure the tokenId + imageIpfs + color are valid
         verify(proof, imageIpfs, tokenId, color);
         // Make sure the minter has not minted 10 tokens already
@@ -121,12 +125,22 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
     }
 
     function withdrawERC20(address tokenAddress) external {
+        require(
+            msg.sender == VERDOMI_ADDRESS ||
+                msg.sender == DANKMFER_ADDRESS ||
+                msg.sender == owner(),
+            "Must be Verdomi, Dankmfer or Owner"
+        );
         IERC20 token = IERC20(tokenAddress);
 
         uint256 amount = token.balanceOf(address(this)) / 2;
 
-        token.transferFrom(address(this), VERDOMI_ADDRESS, amount);
-        token.transferFrom(address(this), DANKMFER_ADDRESS, amount);
+        token.transfer(VERDOMI_ADDRESS, amount);
+        token.transfer(DANKMFER_ADDRESS, amount);
+    }
+
+    function toggleMint() external onlyOwner {
+        isMintOpen = !isMintOpen;
     }
 
     receive() external payable {
