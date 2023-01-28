@@ -164,7 +164,7 @@ const { get } = require("http")
                   const proof = mintData[0][3]
 
                   await expect(offchain.mint(proof, imageIpfs, tokenId, color)).to.be.revertedWith(
-                      "Mint is not open."
+                      "Mint is not open"
                   )
               })
           })
@@ -260,7 +260,7 @@ const { get } = require("http")
                   await offchain.toggleMint()
                   await expect(
                       offchain.mint(mintData[1][3], mintData[1][0], mintData[1][1], mintData[1][2])
-                  ).to.be.revertedWith("Mint is not open.")
+                  ).to.be.revertedWith("Mint is not open")
 
                   await offchain.toggleMint()
                   await offchain.mint(

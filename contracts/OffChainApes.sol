@@ -2,7 +2,6 @@
 
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Verifier.sol";
 import "./Base64.sol";
@@ -34,7 +33,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         string memory color
     ) external {
         // Make sure mint is open
-        require(isMintOpen, "Mint is not open.");
+        require(isMintOpen, "Mint is not open");
         // Make sure the tokenId + imageIpfs + color are valid
         verify(proof, imageIpfs, tokenId, color);
         // Make sure the minter has not minted 10 tokens already
@@ -57,11 +56,11 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
         string[6] memory parts;
         parts[
             0
-        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: black; font-family: serif; font-size: 12px; }</style><rect width="100%" height="100%" fill="#';
+        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: black; font-family: monospace; font-size: 10px; }</style><rect width="100%" height="100%" fill="#';
 
         parts[1] = idToColor[tokenId];
 
-        parts[2] = '" /><text x="3" y="175" class="base">';
+        parts[2] = '" /><text text-anchor="end" x="347" y="347" class="base">';
 
         parts[3] = "ipfs://";
 
