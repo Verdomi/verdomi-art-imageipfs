@@ -54,7 +54,7 @@ const { get } = require("http")
               it("Initilizes the NFT Correctly.", async () => {
                   const name = await offchain.name()
                   const symbol = await offchain.symbol()
-                  assert.equal(name, "Off-Chain Apes")
+                  assert.equal(name, "OffChainApes")
                   assert.equal(symbol, "OFFCA")
               })
               it("Initializes the royalty information correctly.", async () => {
@@ -160,6 +160,18 @@ const { get } = require("http")
                   await expect(offchain.mint(proof, imageIpfs, tokenId, color)).to.be.revertedWith(
                       "Mint is not open"
                   )
+              })
+              it("Increaes totalSupply", async () => {
+                  const imageIpfs = mintData[0][0]
+                  const tokenId = mintData[0][1]
+                  const color = mintData[0][2]
+                  const proof = mintData[0][3]
+
+                  const before = await offchain.totalSupply()
+                  await offchain.mint(proof, imageIpfs, tokenId, color)
+                  const after = await offchain.totalSupply()
+                  assert.equal(before, 0)
+                  assert.equal(after, 1)
               })
           })
 

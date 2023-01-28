@@ -15,7 +15,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
 
     uint256 internal constant MAX_SUPPLY = 10000;
 
-    constructor(bytes32 _root) ERC721("Off-Chain Apes", "OFFCA") Verifier(_root) {
+    constructor(bytes32 _root) ERC721("OffChainApes", "OFFCA") Verifier(_root) {
         _setDefaultRoyalty(msg.sender, 1000);
     }
 
@@ -79,7 +79,7 @@ contract OffChainApes is ERC721, ERC2981, Verifier {
             bytes(
                 string(
                     abi.encodePacked(
-                        '{"name": "Off-Chain Ape #',
+                        '{"name": "OffChainApe #',
                         tokenId.toString(),
                         '", "description": "This NFT is part of a collection of 10,000 created by Verdomi. The collection serves as an artistic expression on the lack of on-chain storage for most NFT artwork. There is a 10% royalty on the collection.", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),
